@@ -1,0 +1,10 @@
+services:
+  ws50-climate-influxdb:
+    container_name: ws50-climate-influxdb
+    build: .
+    image: ws50-climate-influxdb
+    env_file: .env
+    command: ["--repeat"]
+    volumes:
+      - ./state:/state
+    restart: unless-stopped

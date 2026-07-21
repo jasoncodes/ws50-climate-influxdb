@@ -1,0 +1,10 @@
+.git
+.venv
+.pytest_cache
+__pycache__
+.env
+mise.local.toml
+example-requests.sh
+association.sh
+state
+tests
