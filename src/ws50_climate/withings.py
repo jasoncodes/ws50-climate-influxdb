@@ -136,6 +136,7 @@ class WithingsClient:
         session_key: str | None = None,
         cookies: dict[str, str] | None = None,
         content_type: str = "text/plain",
+        retry_auth: bool = True,
     ) -> dict[str, Any]:
         request = Request(url, data=urlencode(fields).encode(), method="POST")
         request.add_header("Content-Type", content_type)
@@ -152,7 +153,12 @@ class WithingsClient:
         if not isinstance(payload, dict):
             raise RuntimeError("Withings returned an unexpected response")
         if payload.get("status") not in (None, 0):
-            raise WithingsRequestError(int(payload["status"]))
+            status = int(payload["status"])
+            if status == 2555 and session_key and retry_auth:
+                self.state.data.pop("session", None)
+                self.state.save()
+                return self._request(url, fields, self.session_key(), cookies, content_type, False)
+            raise WithingsRequestError(status)
         return payload
 
     @staticmethod
